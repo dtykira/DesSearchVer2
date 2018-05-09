@@ -6,8 +6,9 @@
 int main(){
 	Gen_PE_Table();
 	GenPrTable();
+	clock_t start,end;
 
-	Round=9;
+	Round=3;
 	Bn[0]=0;
 	Bn[1]=2;
 	Bn[2]=4;
@@ -22,16 +23,20 @@ int main(){
 	Bn[11]=58.102371;
 	Bn[12]=60.780441;
 	Bn[13]=68.780441;
-	
-	for(Round=4;Round<=14;Round++){
+
+	Bnc[Round-1]=8;
+	start=clock();
+	Round_1();
+	end = clock();
+	printf("%d&%f\n",Round,(double)(end-start)/CLK_TCK);
+	/*for(Round=4;Round<=14;Round++){
 		Bnc[Round-1]=(int)Bn[Round-1]+1;
 
-		clock_t start,end;
 		start=clock();
 		Round_1();
 		end = clock();
 		printf("%d&%f\n",Round,(double)(end-start)/CLK_TCK);
-	}
+	}*/
 	system("pause");
 	return 0;
 }

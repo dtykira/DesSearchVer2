@@ -8,7 +8,7 @@ inline void ResetCharacter(int k,int l,int round){
 	}
 }
 void setAndPrint(){
-	Bnc[Round-1]=r_pr[Round-1];
+	//Bnc[Round-1]=r_pr[Round-1];
 	for(int si=0;si<SBOX_NUMBER;si++){
 		fprintf(fp_trails,"%02x ",r_od_l[0][si]);
 	}fprintf(fp_trails,"\t%f\n",r_pr[0]);
@@ -171,8 +171,13 @@ void Round_2_(int j,prType pr_round,__m128i tmp0){
 	si8 m;
 	u16 idv;
 	si8 idv_num;
-	
-	for(a[1][j]=a[1][j-1]+1;a[1][j]<8;a[1][j]++){
+
+	for(a[1][j]=a[1][j-1]+1;a[1][j]<=7;a[1][j]++){
+		//if(j!=1)a[1][j]-=1;
+		//if(a[1][j]==a[1][j-1])a[1][j]=7;
+	//for(a[1][j]=a[1][j-1];a[1][j]=7;a[1][j]++){
+		//if(a[1][j]==a[1][j-1])a[1][j]=7;
+		
 		if(j!=1 && (r_od_l[1][a[1][j-1]]&0x3)!=0){
 			if(a[1][j]!=(a[1][j-1]+1)){
 				break;
