@@ -8,7 +8,7 @@ inline void ResetCharacter(int k,int l,int round){
 	}
 }
 void setAndPrint(){
-	//Bnc[Round-1]=r_pr[Round-1];
+	Bnc[Round-1]=r_pr[Round-1];
 	for(int si=0;si<SBOX_NUMBER;si++){
 		fprintf(fp_trails,"%02x ",r_od_l[0][si]);
 	}fprintf(fp_trails,"\t%f\n",r_pr[0]);
@@ -161,7 +161,7 @@ void Round_(int r){
 //j是当前处理第j个活跃S盒
 //pr_round是当前轮在调用本次遍历之前的概率
 //tmp0是当前轮在调用本次遍历之前的输出差分
-void Round_2_(int j,prType pr_round,__m128i tmp0){
+void Round_2_(int j,int a_pre,prType pr_round,__m128i tmp0){
 	prType prob;
 	u16 dx;
 	__m128i *odp;
@@ -171,19 +171,29 @@ void Round_2_(int j,prType pr_round,__m128i tmp0){
 	si8 m;
 	u16 idv;
 	si8 idv_num;
+	int a_cur_0;
+	int a_cur;
 
-	for(a[1][j]=a[1][j-1]+1;a[1][j]<=7;a[1][j]++){
-		//if(j!=1)a[1][j]-=1;
-		//if(a[1][j]==a[1][j-1])a[1][j]=7;
+	for(a_cur_0=a_pre+1;a_cur_0<=7;a_cur_0++){
+		a_cur=a_cur_0-1;
+		if(a_cur==a_pre)a_cur=7;
+		/*if(true){
+			a_cur=a_cur_0-1;
+			if(a_cur==a_pre)a_cur=7;
+		}else{
+			a_cur=a_cur_0;
+		}*/
 	//for(a[1][j]=a[1][j-1];a[1][j]=7;a[1][j]++){
 		//if(a[1][j]==a[1][j-1])a[1][j]=7;
-		
-		if(j!=1 && (r_od_l[1][a[1][j-1]]&0x3)!=0){
-			if(a[1][j]!=(a[1][j-1]+1)){
-				break;
+
+		if(j!=1 && (r_od_l[1][a_pre]&0x3)!=0){
+			if(a_cur!=(a_pre+1)){
+				if(a_cur==7)continue;
+				else break;
 			}
 		}
-		memset(r_od_l[1]+a[1][j-1]+1,0,sizeof(u16)*(a[1][j]-a[1][j-1]-1));
+		
+		memset(r_od_l[1]+a_pre+1,0,sizeof(u16)*(a_cur-a_pre-1));
 //******************************
 //将第a[2][j-1]个S盒至第a[2][j]个S盒之间的S盒输入输出全部置为0。
 //a[2][j-1]后两个比特不为0，那么a[2][j]只能取a[2][j-1]+1；但若j=1，不存在这个问题。
@@ -192,7 +202,7 @@ void Round_2_(int j,prType pr_round,__m128i tmp0){
 //------------------------------
 //a[2][j]==8
 //------------------------------
-		if(a[1][j]==7){
+		if(a_cur==7){
 			if(j!=1||firstRoundActive==1){
 //******************************
 //当第一轮活跃时，第二轮才能不活跃。
@@ -242,7 +252,7 @@ void Round_2_(int j,prType pr_round,__m128i tmp0){
 //------------------------------
 //a[2][j]==1
 //------------------------------
-		}else if(a[1][j]==0){
+		}else if(a_cur==0){
 			for(si16 pr=0;pr<PR_NUMBER;pr++){//遍历概率
 				prob=Prob[pr]+pr_round;
 				if((prob+r_pr[0]+Bn[Round-3])<(Bnc[Round-1]+1e-10)){
@@ -255,7 +265,7 @@ void Round_2_(int j,prType pr_round,__m128i tmp0){
 						for(si16 k=s;k<s+m;k++){//遍历输出差分
 							tmp1=_mm_xor_si128(tmp0,*(__m128i *)(SPE[0][idv][k]));
 							//_mm_store_si128(odp,tmp1);
-							Round_2_(j+1,prob,tmp1);
+							Round_2_(j+1,a_cur,prob,tmp1);
 						}
 					}
 				}else break;
@@ -277,14 +287,14 @@ void Round_2_(int j,prType pr_round,__m128i tmp0){
 					idv_num=PDT_1_Non0Num[pr];
 					for(si16 i=0;i<idv_num;i++){//遍历输入差分
 						idv=PDT_1_Non0Val[pr][i];
-						if( (idv&0x30) == ((r_od_l[1][a[1][j]-1]&0x3)<<4) ){
-							r_od_l[1][a[1][j]]=idv;
+						if( (idv&0x30) == ((r_od_l[1][a_cur-1]&0x3)<<4) ){
+							r_od_l[1][a_cur]=idv;
 							s=PDT_0_Offset[idv][pr][0];
 							m=PDT_0_Number[idv][pr];
 							for(si16 k=s;k<s+m;k++){//遍历输出差分
-								tmp1=_mm_xor_si128(tmp0,*(__m128i *)(SPE[a[1][j]][idv][k]));
+								tmp1=_mm_xor_si128(tmp0,*(__m128i *)(SPE[a_cur][idv][k]));
 								//_mm_store_si128(odp,tmp1);
-								Round_2_(j+1,prob,tmp1);
+								Round_2_(j+1,a_cur,prob,tmp1);
 							}
 						}
 					}
@@ -305,7 +315,7 @@ void Round_2_(int j,prType pr_round,__m128i tmp0){
 void Round_2(){
 	__m128i tmp;
 	tmp=_mm_setzero_si128();
-	Round_2_(1,0,tmp);
+	Round_2_(1,-1,0,tmp);
 }
 
 void Round_1_(int j,prType pr_round){

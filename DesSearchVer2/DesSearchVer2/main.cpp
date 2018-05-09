@@ -24,19 +24,19 @@ int main(){
 	Bn[12]=60.780441;
 	Bn[13]=68.780441;
 
-	Bnc[Round-1]=8;
+	/*Bnc[Round-1]=8;
 	start=clock();
 	Round_1();
 	end = clock();
-	printf("%d&%f\n",Round,(double)(end-start)/CLK_TCK);
-	/*for(Round=4;Round<=14;Round++){
+	printf("%d&%f\n",Round,(double)(end-start)/CLK_TCK);*/
+	for(Round=4;Round<=14;Round++){
 		Bnc[Round-1]=(int)Bn[Round-1]+1;
 
 		start=clock();
 		Round_1();
 		end = clock();
 		printf("%d&%f\n",Round,(double)(end-start)/CLK_TCK);
-	}*/
+	}
 	system("pause");
 	return 0;
 }
